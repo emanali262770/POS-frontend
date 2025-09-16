@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import {
   Table,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableCell,
 } from "../../components/ui/table";
-import { HashLoader  } from "react-spinners";
+import { HashLoader } from "react-spinners";
 import {
   PieChart,
   Pie,
@@ -21,7 +21,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Line,
-  Legend
+  Legend,
 } from "recharts";
 import {
   Users,
@@ -35,10 +35,13 @@ import {
   X,
   Sun,
   Moon,
-  Cloud
+  Cloud,
+  ExternalLink,
 } from "lucide-react";
+import Swal from "sweetalert2";
 
 const AdminDashboard = () => {
+  const [activePeriod, setActivePeriod] = useState("weekly"); // state for weekly,monthly.yearly
   const [customers, setCustomers] = useState(0);
   const [items, setItems] = useState(0);
   const [booking, setBooking] = useState(0);
@@ -51,7 +54,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
   const [recentCustomer, setRecentCustomer] = useState([]);
-  const [notifications, setNotifications] = useState([])
+  const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const dropdownRef = useRef(null);
@@ -66,7 +69,7 @@ const AdminDashboard = () => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
-    
+
     return () => clearInterval(timer);
   }, []);
 
@@ -76,7 +79,9 @@ const AdminDashboard = () => {
 
     const fetchCustomers = async () => {
       try {
-        const res = await axios.get(`${base}/customers/count`, { signal: controller.signal });
+        const res = await axios.get(`${base}/customers/count`, {
+          signal: controller.signal,
+        });
         setCustomers(res.data?.totalCustomers ?? 0);
       } catch (err) {
         if (!axios.isCancel(err)) console.error("Customer fetch failed:", err);
@@ -85,7 +90,9 @@ const AdminDashboard = () => {
 
     const fetchItems = async () => {
       try {
-        const res = await axios.get(`${base}/item-details/count`, { signal: controller.signal });
+        const res = await axios.get(`${base}/item-details/count`, {
+          signal: controller.signal,
+        });
         setItems(res.data?.count ?? 0);
       } catch (err) {
         if (!axios.isCancel(err)) console.error("Items fetch failed:", err);
@@ -94,7 +101,9 @@ const AdminDashboard = () => {
 
     const fetchUsers = async () => {
       try {
-        const res = await axios.get(`${base}/company-users/count`, { signal: controller.signal });
+        const res = await axios.get(`${base}/company-users/count`, {
+          signal: controller.signal,
+        });
         setUsers(res.data?.len ?? 0);
       } catch (err) {
         if (!axios.isCancel(err)) console.error("Users fetch failed:", err);
@@ -103,7 +112,9 @@ const AdminDashboard = () => {
 
     const fetchBookings = async () => {
       try {
-        const res = await axios.get(`${base}/bookings/count`, { signal: controller.signal });
+        const res = await axios.get(`${base}/bookings/count`, {
+          signal: controller.signal,
+        });
         setBooking(res.data?.total ?? 0);
       } catch (err) {
         if (!axios.isCancel(err)) console.error("Bookings fetch failed:", err);
@@ -114,7 +125,8 @@ const AdminDashboard = () => {
         const res = await axios.get(`${base}/notifications`, {
           headers: {
             Authorization: `Bearer ${userInfo.token}`,
-          }, signal: controller.signal
+          },
+          signal: controller.signal,
         });
         setNotifications(res.data);
       } catch (err) {
@@ -124,7 +136,9 @@ const AdminDashboard = () => {
 
     const fetchBookingRecent = async () => {
       try {
-        const res = await axios.get(`${base}/bookings/recent`, { signal: controller.signal });
+        const res = await axios.get(`${base}/bookings/recent`, {
+          signal: controller.signal,
+        });
         setRecentCustomer(res.data);
       } catch (err) {
         if (!axios.isCancel(err)) console.error("Bookings fetch failed:", err);
@@ -133,8 +147,11 @@ const AdminDashboard = () => {
 
     const fetchBookingCompleted = async () => {
       try {
-        const res = await axios.get(`${base}/bookings/completed`, { signal: controller.signal });
+        const res = await axios.get(`${base}/bookings/completed`, {
+          signal: controller.signal,
+        });
         setBookingCompleted(res.data?.total ?? 0);
+        
       } catch (err) {
         if (!axios.isCancel(err)) console.error("Bookings fetch failed:", err);
       }
@@ -142,7 +159,9 @@ const AdminDashboard = () => {
 
     const fetchBookingPending = async () => {
       try {
-        const res = await axios.get(`${base}/bookings/pending`, { signal: controller.signal });
+        const res = await axios.get(`${base}/bookings/pending`, {
+          signal: controller.signal,
+        });
         setBookingPending(res.data?.total ?? 0);
       } catch (err) {
         if (!axios.isCancel(err)) console.error("Bookings fetch failed:", err);
@@ -151,7 +170,9 @@ const AdminDashboard = () => {
 
     const fetchBookingRejected = async () => {
       try {
-        const res = await axios.get(`${base}/bookings/rejected`, { signal: controller.signal });
+        const res = await axios.get(`${base}/bookings/rejected`, {
+          signal: controller.signal,
+        });
         setBookingRejected(res.data?.total ?? 0);
       } catch (err) {
         if (!axios.isCancel(err)) console.error("Bookings fetch failed:", err);
@@ -160,7 +181,9 @@ const AdminDashboard = () => {
 
     const fetchSales = async () => {
       try {
-        const res = await axios.get(`${base}/saleInvoices/count`, { signal: controller.signal });
+        const res = await axios.get(`${base}/saleInvoices/count`, {
+          signal: controller.signal,
+        });
         setSales(res.data?.total ?? 0);
       } catch (err) {
         if (!axios.isCancel(err)) console.error("Sales fetch failed:", err);
@@ -169,7 +192,10 @@ const AdminDashboard = () => {
 
     const fetchRevenue = async () => {
       try {
-        const res = await axios.get(`${base}/saleInvoices/total-revenue`, { signal: controller.signal });
+        const res = await axios.get(`${base}/saleInvoices/total-revenue`, {
+          signal: controller.signal,
+        });
+        
         setRevenue(res.data?.totalRevenue ?? 0);
       } catch (err) {
         if (!axios.isCancel(err)) console.error("Revenue fetch failed:", err);
@@ -189,7 +215,7 @@ const AdminDashboard = () => {
         fetchRevenue(),
         fetchNotifcations(),
         fetchBookingRejected(),
-        fetchBookingRecent()
+        fetchBookingRecent(),
       ]);
       // Add a slight delay to show loading animation
       setTimeout(() => setLoading(false), 1000);
@@ -202,17 +228,18 @@ const AdminDashboard = () => {
     };
   }, []);
 
-  useEffect(()=> {
-      fetchSalesChart("weekly")
-    
-  })
-
+  useEffect(() => {
+    fetchSalesChart("weekly");
+  }, []);
 
   const fetchSalesChart = async (period = "daily") => {
     try {
-      const res = await axios.get(`${base}/saleInvoices/chart?period=${period}`);
+      setActivePeriod(period)
+      const res = await axios.get(
+        `${base}/saleInvoices/chart?period=${period}`
+      );
 
-      const transformedData = res.data.map(item => {
+      const transformedData = res.data.map((item) => {
         const date = new Date(item._id);
         let name;
 
@@ -221,7 +248,10 @@ const AdminDashboard = () => {
           const day = date.getDate();
           name = `${month} ${day}`;
         } else if (period === "monthly") {
-          name = date.toLocaleString("default", { month: "short", year: "numeric" });
+          name = date.toLocaleString("default", {
+            month: "short",
+            year: "numeric",
+          });
         } else if (period === "yearly") {
           name = date.getFullYear();
         }
@@ -229,7 +259,7 @@ const AdminDashboard = () => {
         return {
           name,
           sales: item.count,
-          revenue: item.totalAmount || (Math.random() * 1000).toFixed(2)
+          revenue: item.totalAmount || (Math.random() * 1000).toFixed(2),
         };
       });
 
@@ -276,16 +306,16 @@ const AdminDashboard = () => {
 
   // Format time for display
   const formatTime = (date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   // Format date for display
   const formatDate = (date) => {
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -312,7 +342,7 @@ const AdminDashboard = () => {
       icon: <Users size={24} />,
       change: "+12%",
       color: "bg-blue-100 text-blue-600",
-      border: "border-l-4 border-blue-400"
+      border: "border-l-4 border-blue-400",
     },
     {
       name: "Total Products",
@@ -320,7 +350,7 @@ const AdminDashboard = () => {
       icon: <Package size={24} />,
       change: "+5%",
       color: "bg-green-100 text-green-600",
-      border: "border-l-4 border-green-400"
+      border: "border-l-4 border-green-400",
     },
     {
       name: "Total Staff",
@@ -328,7 +358,7 @@ const AdminDashboard = () => {
       icon: <UserCheck size={24} />,
       change: "+2%",
       color: "bg-purple-100 text-purple-600",
-      border: "border-l-4 border-purple-400"
+      border: "border-l-4 border-purple-400",
     },
     {
       name: "Total Sales",
@@ -336,7 +366,7 @@ const AdminDashboard = () => {
       icon: <CreditCard size={24} />,
       change: "+18%",
       color: "bg-amber-100 text-amber-600",
-      border: "border-l-4 border-amber-400"
+      border: "border-l-4 border-amber-400",
     },
     {
       name: "Total Revenue",
@@ -344,7 +374,7 @@ const AdminDashboard = () => {
       icon: <DollarSign size={24} />,
       change: "+15%",
       color: "bg-emerald-100 text-emerald-600",
-      border: "border-l-4 border-emerald-400"
+      border: "border-l-4 border-emerald-400",
     },
     {
       name: "Bookings",
@@ -352,7 +382,7 @@ const AdminDashboard = () => {
       icon: <Calendar size={24} />,
       change: "-3%",
       color: "bg-rose-100 text-rose-600",
-      border: "border-l-4 border-rose-400"
+      border: "border-l-4 border-rose-400",
     },
   ];
 
@@ -362,16 +392,27 @@ const AdminDashboard = () => {
     { name: "Rejected", value: bookingRejected, color: "#E63946" },
   ];
   const statusColors = {
-    "Completed": "bg-green-100 text-green-800",
-    "Pending": "bg-amber-100 text-amber-800",
-    "Refunded": "bg-rose-100 text-rose-800"
+    Completed: "bg-green-100 text-green-800",
+    Pending: "bg-amber-100 text-amber-800",
+    Refunded: "bg-rose-100 text-rose-800",
+  };
+  // Added notification popup Funcationalty
+  const openNotifModal = (notif) => {
+    Swal.fire({
+      title: notif?.title ?? "Details",
+      text: notif?.message ?? "No description available.",
+      icon: "info",
+      confirmButtonText: "Close",
+    });
   };
 
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-[80vh]">
-        <HashLoader  color="#84CF16" />
-        <span className="ml-4 text-gray-500 mt-4">Loading dashboard data...</span>
+        <HashLoader color="#84CF16" />
+        <span className="ml-4 text-gray-500 mt-4">
+          Loading dashboard data...
+        </span>
       </div>
     );
   }
@@ -383,11 +424,15 @@ const AdminDashboard = () => {
         <div className="mb-4 md:mb-0">
           <div className="flex items-center gap-2 mb-2">
             {getGreetingIcon()}
-            <h1 className="text-2xl font-bold text-newPrimary">{getGreeting()}, {userInfo?.name || 'Admin'}!</h1>
+            <h1 className="text-2xl font-bold text-newPrimary">
+              {getGreeting()}, {userInfo?.name || "Admin"}!
+            </h1>
           </div>
-          <p className="text-gray-600">{formatDate(currentTime)} • {formatTime(currentTime)}</p>
+          <p className="text-gray-600">
+            {formatDate(currentTime)} • {formatTime(currentTime)}
+          </p>
         </div>
-        
+
         {/* Quick Stats Overview */}
         <div className="flex flex-col sm:flex-row gap-4 items-center bg-gradient-to-r from-newPrimary/10 to-green-100/30 p-4 rounded-xl border border-newPrimary/20">
           <div className="text-center">
@@ -396,15 +441,19 @@ const AdminDashboard = () => {
           </div>
           <div className="h-8 w-px bg-newPrimary/30 hidden sm:block"></div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-newPrimary">${revenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-newPrimary">
+              ${revenue.toLocaleString()}
+            </div>
             <div className="text-xs text-gray-600">Revenue</div>
           </div>
           <div className="h-8 w-px bg-newPrimary/30 hidden sm:block"></div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-newPrimary">{bookingPending}</div>
-            <div className="text-xs text-gray-600">  Orders</div>
+            <div className="text-2xl font-bold text-newPrimary">
+              {bookingPending}
+            </div>
+            <div className="text-xs text-gray-600"> Orders</div>
           </div>
-          
+
           {/* Notification Bell */}
           <div className="h-8 w-px bg-newPrimary/30 hidden sm:block"></div>
           <div className="relative" ref={dropdownRef}>
@@ -437,7 +486,9 @@ const AdminDashboard = () => {
 
                 <div className="max-h-64 overflow-y-auto">
                   {notifications.length === 0 ? (
-                    <p className="p-4 text-sm text-gray-500">No new notifications</p>
+                    <p className="p-4 text-sm text-gray-500">
+                      No new notifications
+                    </p>
                   ) : (
                     notifications.map((notif) => (
                       <div
@@ -446,14 +497,24 @@ const AdminDashboard = () => {
                       >
                         <div>
                           <p className="font-medium text-sm">{notif.title}</p>
-                          <p className="text-xs text-gray-600">{notif.message}</p>
+                          <p className="text-xs text-gray-600">
+                            {notif.message}
+                          </p>
                         </div>
-                        <button
-                          onClick={() => clearNotification(notif._id)}
-                          className="ml-2 text-gray-400 hover:text-red-500"
-                        >
-                          <X size={14} />
-                        </button>
+                        <div className="">
+                          <button
+                            onClick={() => openNotifModal(notif)}
+                            className="p-1 hover:text-blue-600"
+                          >
+                            <ExternalLink size={12} className="text-primary" />
+                          </button>
+                          <button
+                            onClick={() => clearNotification(notif._id)}
+                            className="ml-2 text-gray-400 hover:text-red-500"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
                       </div>
                     ))
                   )}
@@ -473,15 +534,15 @@ const AdminDashboard = () => {
             style={{ animation: `fadeIn 0.5s ease-out ${index * 0.1}s both` }}
           >
             <div className="flex justify-between items-start">
-              <div className={`p-2 rounded-lg ${item.color}`}>
-                {item.icon}
-              </div>
+              <div className={`p-2 rounded-lg ${item.color}`}>{item.icon}</div>
               <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
                 {item.change}
               </span>
             </div>
             <div className="mt-4">
-              <div className="text-2xl font-bold text-gray-800">{item.value}</div>
+              <div className="text-2xl font-bold text-gray-800">
+                {item.value}
+              </div>
               <div className="text-sm text-gray-500 mt-1">{item.name}</div>
             </div>
           </div>
@@ -496,48 +557,86 @@ const AdminDashboard = () => {
           style={{ animation: "slideInLeft 0.5s ease-out" }}
         >
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2 sm:mb-0">Sales Overview</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-2 sm:mb-0">
+              Sales Overview
+            </h2>
             <div className="flex space-x-2">
               <div className="flex space-x-2">
                 <button
-                  onClick={() => fetchSalesChart("weekly")}
-                  className="px-3 py-1 text-xs bg-newPrimary/10 text-newPrimary rounded-full"
+                  onClick={() => 
+                    fetchSalesChart("weekly")}
+                  className={`px-3 py-1 text-xs rounded-full ${
+                    activePeriod === "weekly"
+                      ? "bg-newPrimary/10 text-newPrimary"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
                 >
                   Weekly
                 </button>
+
                 <button
-                  onClick={() => fetchSalesChart("monthly")}
-                  className="px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded-full"
+                  onClick={() => 
+                    fetchSalesChart("monthly")}
+                  className={`px-3 py-1 text-xs rounded-full ${
+                    activePeriod === "monthly"
+                      ? "bg-newPrimary/10 text-newPrimary"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
                 >
                   Monthly
                 </button>
+
                 <button
-                  onClick={() => fetchSalesChart("yearly")}
-                  className="px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded-full"
+                  onClick={() => 
+                    fetchSalesChart("yearly")}
+                  className={`px-3 py-1 text-xs rounded-full ${
+                    activePeriod === "yearly"
+                      ? "bg-newPrimary/10 text-newPrimary"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
                 >
                   Yearly
                 </button>
               </div>
-
             </div>
           </div>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData.length > 0 ? chartData : [{ name: "No data", sales: 0, revenue: 0 }]}>
+              <BarChart
+                data={
+                  chartData.length > 0
+                    ? chartData
+                    : [{ name: "No data", sales: 0, revenue: 0 }]
+                }
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="name" />
                 <YAxis yAxisId="left" />
                 <YAxis yAxisId="right" orientation="right" />
                 <Tooltip
                   contentStyle={{
-                    borderRadius: '8px',
-                    border: '1px solid #e5e7eb',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    borderRadius: "8px",
+                    border: "1px solid #e5e7eb",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                   }}
                 />
                 <Legend />
-                <Bar yAxisId="left" dataKey="sales" name="Number of Sales" fill="#84CF16" radius={[4, 4, 0, 0]} />
-                <Line yAxisId="right" type="monotone" dataKey="revenue" name="Revenue ($)" stroke="#58C5A0" strokeWidth={2} dot={{ r: 4 }} />
+                <Bar
+                  yAxisId="left"
+                  dataKey="sales"
+                  name="Number of Sales"
+                  fill="#84CF16"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="revenue"
+                  name="Revenue ($)"
+                  stroke="#58C5A0"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -548,7 +647,9 @@ const AdminDashboard = () => {
           className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
           style={{ animation: "slideInRight 0.5s ease-out" }}
         >
-          <h2 className="text-lg font-semibold text-gray-800 mb-6">Order Status</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-6">
+            Order Status
+          </h2>
           <div className="flex justify-center items-center h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -560,7 +661,9 @@ const AdminDashboard = () => {
                   outerRadius={80}
                   paddingAngle={5}
                   dataKey="value"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) =>
+                    `${name}: ${(percent * 100).toFixed(0)}%`
+                  }
                   labelLine={false}
                 >
                   {pieData.map((entry, index) => (
@@ -574,7 +677,10 @@ const AdminDashboard = () => {
           <div className="flex flex-wrap justify-center gap-4 mt-4">
             {pieData.map((entry, index) => (
               <div key={index} className="flex items-center">
-                <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: entry.color }}></div>
+                <div
+                  className="w-3 h-3 rounded-full mr-2"
+                  style={{ backgroundColor: entry.color }}
+                ></div>
                 <span className="text-sm text-gray-600">{entry.name}</span>
               </div>
             ))}
@@ -588,8 +694,9 @@ const AdminDashboard = () => {
         style={{ animation: "fadeIn 0.5s ease-out" }}
       >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-          <h2 className="text-lg font-semibold text-gray-800">Recent Booking Customers</h2>
-
+          <h2 className="text-lg font-semibold text-gray-800">
+            Recent Booking Customers
+          </h2>
         </div>
         <div className="overflow-x-auto">
           <Table>
@@ -608,18 +715,28 @@ const AdminDashboard = () => {
               {recentCustomer.map((transaction, index) => (
                 <TableRow
                   key={transaction.id}
-                  style={{ animation: `fadeIn 0.5s ease-out ${index * 0.1}s both` }}
+                  style={{
+                    animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`,
+                  }}
                 >
-                  <TableCell className="font-medium">{transaction.customerName}</TableCell>
+                  <TableCell className="font-medium">
+                    {transaction.customerName}
+                  </TableCell>
                   <TableCell>{transaction.mobileNo}</TableCell>
-                  <TableCell className="whitespace-normal break-words">{transaction.address}</TableCell>
+                  <TableCell className="whitespace-normal break-words">
+                    {transaction.address}
+                  </TableCell>
                   <TableCell className="whitespace-normal break-words">
                     {transaction.items.map((item) => item.itemName).join(", ")}
                   </TableCell>
                   <TableCell>Rs.{transaction.total}</TableCell>
                   <TableCell>{transaction.paymentMethod}</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 text-xs rounded-full ${statusColors[transaction.status]}`}>
+                    <span
+                      className={`px-2 py-1 text-xs rounded-full ${
+                        statusColors[transaction.status]
+                      }`}
+                    >
                       {transaction.status}
                     </span>
                   </TableCell>
@@ -639,35 +756,39 @@ const AdminDashboard = () => {
       {/* CSS Animations */}
       <style jsx>{`
         @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
         @keyframes slideInLeft {
-          from { 
+          from {
             opacity: 0;
             transform: translateX(-20px);
           }
-          to { 
+          to {
             opacity: 1;
             transform: translateX(0);
           }
         }
         @keyframes slideInRight {
-          from { 
+          from {
             opacity: 0;
             transform: translateX(20px);
           }
-          to { 
+          to {
             opacity: 1;
             transform: translateX(0);
           }
         }
         @keyframes slideInUp {
-          from { 
+          from {
             opacity: 0;
             transform: translateY(20px);
           }
-          to { 
+          to {
             opacity: 1;
             transform: translateY(0);
           }
